@@ -1,0 +1,89 @@
+name: Reportar bug
+description: Algo não funciona como descrito na especificação
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigada por reportar. Antes de enviar:
+
+        **Não cole chave de API, token de sessão do WPPConnect nem número de telefone real** —
+        nem no texto, nem nos logs, nem em print. Substitua por `***`.
+
+        Se for uma vulnerabilidade de segurança, **não** abra issue pública: siga o
+        [SECURITY.md](https://github.com/LisandraMoura/YourTutor/blob/develop/SECURITY.md).
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: O que aconteceu
+      description: Descreva o comportamento observado.
+      placeholder: O tutor respondeu o áudio como arquivo anexado em vez de mensagem de voz.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: O que você esperava
+      description: Qual era o comportamento correto? Se estiver na especificação, cite a seção.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Como reproduzir
+      description: Passo a passo, do zero, para chegar no erro.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Onde acontece
+      description: Se não souber, escolha "Não sei".
+      options:
+        - WhatsApp / WPPConnect
+        - Áudio (STT, TTS, ffmpeg)
+        - Agentes / LLM
+        - Orquestração / máquina de estados
+        - Banco / migrações
+        - Docker / Makefile
+        - Documentação
+        - Não sei
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Ambiente
+      description: Sistema operacional, versão do Docker e a branch ou commit em que aconteceu.
+      placeholder: "Ubuntu 24.04 · Docker 27.3 · develop @ abc1234"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Saída relevante do `make logs`. Remova qualquer segredo, token ou número real.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmações
+      options:
+        - label: Não colei chave de API, token de sessão nem número de telefone real
+          required: true
+        - label: Procurei nas issues abertas e fechadas e não encontrei essa mesma falha
+          required: true

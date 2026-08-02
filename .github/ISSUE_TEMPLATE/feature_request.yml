@@ -1,0 +1,70 @@
+name: Propor melhoria
+description: Sugerir uma funcionalidade ou uma mudança de comportamento
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Antes de escrever código: **mudança de arquitetura ou de comportamento pedagógico
+        exige discussão nesta issue antes do PR**. PR de arquitetura sem discussão prévia
+        é recusado.
+
+        Vale conferir também a seção "Limitações" do README — algumas coisas são
+        não-escopo declarado do projeto, por decisão, não por falta de tempo.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema que isso resolve
+      description: Qual dor concreta existe hoje? Descreva a situação, não a solução.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+      description: O que você sugere que seja feito, e como isso resolve o problema acima.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: change-type
+    attributes:
+      label: Tipo de mudança
+      description: Ajuda a saber se isso precisa de discussão prévia antes do código.
+      options:
+        - Prompt / comportamento pedagógico
+        - Fluxo da máquina de estados
+        - Integração externa (WhatsApp, OpenAI)
+        - Infraestrutura / experiência de desenvolvimento
+        - Documentação
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: Outros caminhos que você pensou e por que descartou.
+    validations:
+      required: false
+
+  - type: textarea
+    id: spec-impact
+    attributes:
+      label: Impacto na especificação
+      description: Isso muda `docs/requisitos.md`? Qual seção?
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmações
+      options:
+        - label: Li as "Limitações" do README e isso não é um não-escopo declarado do projeto
+          required: true
+        - label: Não colei chave de API, token de sessão nem número de telefone real
+          required: true
