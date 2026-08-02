@@ -229,11 +229,30 @@ POSTGRES_PORT=
 POSTGRES_DB=
 POSTGRES_USER=
 POSTGRES_PASSWORD=
+DATABASE_URL=
+POSTGRES_HOST_PORT=
 
 # Aplicação
 API_PORT=
 LOG_LEVEL=
+COMPOSE_PROJECT_NAME=
 ```
+
+O **`.env.example` versionado é a lista autoritativa dos defaults**: cada chave
+aparece lá com o valor que o `app/config.py` aplica quando ela está ausente, e
+com o comentário de quem a consome. Chave obrigatória (`WPP_SECRET_KEY`,
+`OPENAI_API_KEY`, `POSTGRES_PASSWORD`) não tem default e é declarada vazia; a
+aplicação falha na subida listando todas as que faltam de uma vez.
+
+Quatro chaves do bloco acima não são lidas pela aplicação — existem porque o
+`docker-compose.yml` e o `Makefile` precisam delas soltas:
+
+| Chave | Consumidor | Função |
+|---|---|---|
+| `WPP_PORT` | infraestrutura | Porta do WPPConnect publicada pelo container. A aplicação alcança o serviço por `WPP_SERVER_URL` e não valida esta chave. |
+| `POSTGRES_HOST_PORT` | infraestrutura | Porta do Postgres publicada na máquina host. Vazia por padrão: o banco **não** é exposto para fora dos containers; preencher só para inspeção externa. |
+| `COMPOSE_PROJECT_NAME` | infraestrutura | Prefixo fixo de containers, redes e volumes. Sem ela o nome deriva do diretório de trabalho e o alvo do `make reset` fica instável. |
+| `DATABASE_URL` | aplicação (derivada) | Vazia por padrão: a URL de conexão é derivada das cinco chaves `POSTGRES_*`. Se preenchida, tem precedência — é o caminho para um Postgres gerenciado externo. |
 
 ---
 
@@ -269,8 +288,8 @@ LOG_LEVEL=
 
 | # | Questão |
 |---|---|
-| D1 | Quantos itens por nível o Planejador deve gerar? (sugestão: 10–15 no A1) |
-| D2 | `MAX_TURNS_PER_LESSON` — 8? 12? |
+| D1 | ~~Quantos itens por nível o Planejador deve gerar? (sugestão: 10–15 no A1)~~ **RESOLVIDA: 12 itens** (`ITEMS_PER_LEVEL=12`). Ver `.env.example`. |
+| D2 | ~~`MAX_TURNS_PER_LESSON` — 8? 12?~~ **RESOLVIDA: 10 turnos** (`MAX_TURNS_PER_LESSON=10`). Ver `.env.example`. |
 | D3 | Comandos explícitos do usuário (ex.: "próxima lição", "meu progresso", "recomeçar") ou tudo por linguagem natural? |
 | D4 | O usuário pode escolher fazer a lição só em texto, sem áudio? (custo e acessibilidade) |
 | D5 | O que acontece se o usuário responder em português dentro da lição — o tutor insiste em inglês, traduz, ou aceita? |
