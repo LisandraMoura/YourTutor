@@ -1,0 +1,36 @@
+name: Dúvida
+description: Perguntar algo sobre o projeto, a especificação ou como contribuir
+title: "[DÚVIDA] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dúvida é bem-vinda. Só peça com contexto: quanto mais claro o que você já tentou,
+        mais rápido a resposta chega.
+
+        **Não cole chave de API, token de sessão nem número de telefone real.**
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Sua pergunta
+      description: Seja específico. Uma pergunta por issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: already-tried
+    attributes:
+      label: O que você já tentou ou já leu
+      description: README, `docs/requisitos.md`, CONTRIBUTING.md, issues existentes, comandos que rodou.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto
+      description: Qualquer coisa que ajude a entender de onde vem a dúvida.
+    validations:
+      required: false
