@@ -1,0 +1,39 @@
+# Build context for the API image. Keep it small: the repo hosts several git
+# worktrees under .claude/, each a full copy of the tree.
+
+# Secrets — must never reach an image layer
+.env
+.env.*
+!.env.example
+
+# Version control and agent workspace
+.git
+.gitignore
+.github
+.claude
+
+# Python environments and caches
+.venv
+venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+.coverage.*
+coverage.xml
+htmlcov
+
+# Documentation and tooling that the runtime image does not need
+docs
+scripts
+README.md
+CLAUDE.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+CODEOWNERS
+Dockerfile
+.dockerignore
+docker-compose.yml
