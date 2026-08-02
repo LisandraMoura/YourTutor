@@ -276,7 +276,7 @@ LOG_LEVEL=
 | D5 | O que acontece se o usuário responder em português dentro da lição — o tutor insiste em inglês, traduz, ou aceita? |
 | D6 | Retomada: se o usuário sumir no meio de uma lição e voltar 3 dias depois, retoma ou reinicia o item? |
 | D7 | O plano é enviado inteiro a cada atualização ou só o delta ("2 de 12 concluídos")? |
-| D8 | Licença: MIT (permissiva, adoção máxima) ou AGPL (garante que forks em SaaS voltem)? |
+| D8 | ~~Licença: MIT (permissiva, adoção máxima) ou AGPL (garante que forks em SaaS voltem)?~~ **RESOLVIDA: Apache-2.0** (permissiva, com concessão explícita de patente). Ver `LICENSE`. |
 | D9 | O histórico de mensagens em texto também tem retenção limitada, ou fica indefinidamente? O Revisor precisa dele só até o fim da lição |
 | D10 | Aviso de privacidade ao usuário na primeira mensagem, já que a conversa passa pela OpenAI? |
 
@@ -317,7 +317,7 @@ fork → branch → PR para develop → CI verde → review da mantenedora → m
 | Arquivo | Conteúdo |
 |---|---|
 | `README.md` | O que é, como subir em 3 comandos, escopo e não-escopo |
-| `LICENSE` | Licença escolhida (ver D8) |
+| `LICENSE` | Apache-2.0 (D8 resolvida) |
 | `CONTRIBUTING.md` | Fluxo acima, padrão de commit, como rodar testes, o que é aceito |
 | `CODE_OF_CONDUCT.md` | Contributor Covenant + canal de contato |
 | `SECURITY.md` | Como reportar vulnerabilidade em privado |
