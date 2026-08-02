@@ -1,0 +1,9 @@
+# Code owners deste repositório.
+#
+# A mantenedora é revisora obrigatória de todo o repositório (spec §14.1, RG2).
+# O merge é exclusivo dela; ninguém tem permissão de escrita por padrão (RG3).
+#
+# Esta regra só passa a ter efeito prático quando a proteção das branches `main`
+# e `develop` exigir "require review from Code Owners" (RG1).
+
+* @LisandraMoura
