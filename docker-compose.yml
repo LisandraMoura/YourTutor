@@ -1,0 +1,125 @@
+# Three containers (§3.1 of the spec): wppconnect, api, postgres.
+# All configuration comes from the .env file — copy .env.example to .env first.
+# The `version` key is obsolete in the Compose spec and is intentionally absent.
+
+name: ${COMPOSE_PROJECT_NAME:-yourtutor}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      # Only the three variables Postgres actually needs. No env_file here on
+      # purpose: the database has no business seeing OPENAI_API_KEY or
+      # WPP_SECRET_KEY.
+      POSTGRES_DB: ${POSTGRES_DB:-yourtutor}
+      POSTGRES_USER: ${POSTGRES_USER:-yourtutor}
+      # No default: a password with a default is a hardcoded password.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required — set it in .env}
+    volumes:
+      # RI2: the database survives `docker compose down`.
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # $$ escapes the Compose interpolation so the container's own environment
+      # is used at runtime.
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - yourtutor
+    # The host port is deliberately NOT published: smaller attack surface and
+    # one less port to collide with a Postgres already running on the host.
+    # To inspect the database, go through the container:
+    #     docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+    # To reach it from a GUI client on the host instead, add a
+    # docker-compose.override.yml (auto-loaded by Compose) with:
+    #     services:
+    #       postgres:
+    #         ports: ["127.0.0.1:${POSTGRES_HOST_PORT}:5432"]
+    # Compose cannot omit a port entry conditionally: an empty ${POSTGRES_HOST_PORT}
+    # would publish on a random port on 0.0.0.0, which is worse than not
+    # publishing at all. Hence the override file rather than an inline variable.
+
+  wppconnect:
+    # Pinned by digest, not by tag, and this is deliberate: the `1.3.11` tag on
+    # Docker Hub is a March 2024 build that crashes on startup (the `sharp`
+    # module fails to load on musl) and whose WORKDIR is the old
+    # /usr/src/server-cli. The `latest` tag is a December 2025 build that works
+    # and reports the *same* package version 1.3.11, so the semver tag is not
+    # usable for pinning. The digest below is that working December 2025 build.
+    image: wppconnect/server-cli:latest@sha256:1c1b643d8c540b97006229c3665aad9cc455e727ddfd1c552efeaa6c8c22c2c0
+    restart: unless-stopped
+    # Configured by CLI flags rather than a mounted config file. The upstream
+    # config file ships a well-known default secret key; versioning a copy of it
+    # would put a credential in the repository. Flags keep the secret in .env.
+    # Tradeoff: the secret is visible in the process command line on the host.
+    command:
+      - --port
+      - "21465"
+      - --secretKey
+      - ${WPP_SECRET_KEY:?WPP_SECRET_KEY is required — set it in .env}
+      - --webhook-url
+      - ${WPP_WEBHOOK_URL:-http://api:8000/webhook}
+      # Explicit rather than relying on the upstream default: this is what makes
+      # a persisted session reconnect by itself after a restart, with no new QR.
+      - --startAllSession
+      # Reuses the application's LOG_LEVEL (§9) instead of inventing a new key.
+      # The levels are not identical (winston uses lowercase `warn`, Python uses
+      # `WARNING`), but an unrecognised value degrades to info rather than
+      # crashing — verified against this image.
+      - --log-level
+      - ${LOG_LEVEL:-info}
+    ports:
+      - "${WPP_PORT:-21465}:21465"
+    volumes:
+      # RI1 — TWO volumes, not one. The session lives in two places, both
+      # relative to the image WORKDIR (/usr/src/wpp-server, verified on the
+      # image itself, not on the npm package):
+      #   tokens/      -> tokenStoreType: 'file'
+      #   userDataDir/ -> customUserDataDir: './userDataDir/', the Chromium
+      #                   profile, which is where the WhatsApp Web session
+      #                   actually lives.
+      # Persisting only tokens/ still asks for a new QR code on every restart.
+      # Named volumes, never bind mounts: this repo lives on /mnt/c (WSL2 over
+      # NTFS), where the Chromium profile breaks on file locking.
+      - wpp_tokens:/usr/src/wpp-server/tokens
+      - wpp_userdata:/usr/src/wpp-server/userDataDir
+    networks:
+      - yourtutor
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    # The API needs nearly every key in §9 (OpenAI, pedagogy, database,
+    # WhatsApp). One line instead of replicating ~25 variables here. The same
+    # .env also feeds the ${VAR} interpolation above, so there is no duplication.
+    # .env is mandatory: failing fast beats booting with a silently empty config.
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      wppconnect:
+        condition: service_started
+    ports:
+      - "${API_PORT:-8000}:${API_PORT:-8000}"
+    networks:
+      - yourtutor
+    # No volumes on purpose. RF11: the API container mounts no media volume;
+    # the temporary audio directory lives in the ephemeral filesystem.
+
+volumes:
+  postgres_data:
+  wpp_tokens:
+  wpp_userdata:
+
+networks:
+  yourtutor:
+    driver: bridge
+    # NOT `internal: true`. "Internal network" in the issue means a private
+    # network between the containers, not a network without egress. Marking it
+    # internal would cut off the OpenAI API and WhatsApp itself.
